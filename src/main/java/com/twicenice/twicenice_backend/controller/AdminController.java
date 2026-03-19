@@ -51,9 +51,8 @@ import org.springframework.security.crypto.password.PasswordEncoder; // ✅ Impo
 
 @RestController
 @RequestMapping("/api/admin")
-@PreAuthorize("hasRole('ADMIN')")
+@CrossOrigin(origins = {"http://localhost:4200", "https://twicenice.netlify.app"})
 public class AdminController {
-
     @Autowired
     private UserRepository userRepository;
 
