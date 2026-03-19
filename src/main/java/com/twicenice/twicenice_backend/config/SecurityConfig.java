@@ -76,7 +76,9 @@ public class SecurityConfig {
             }))
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/auth/login").permitAll()
+                .requestMatchers("/api/auth/register").permitAll()
+                .requestMatchers("/api/auth/register-admin").denyAll()
                 .requestMatchers("/api").permitAll()
                 .requestMatchers("/images/**").permitAll() 
                 .requestMatchers("/api/products/**").permitAll()
