@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-@CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true") 
+@CrossOrigin(origins = {"http://localhost:4200", "https://twicenice.netlify.app"}, allowCredentials = "true")
 @RestController
 @RequestMapping("/api/auth") 
 public class AuthController {
