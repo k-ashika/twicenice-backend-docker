@@ -1,35 +1,36 @@
 package com.twicenice.twicenice_backend.service;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.*;
-import java.util.UUID;
+import java.util.Map;
 
 @Service
 public class FileStorageService {
 
-    private final String uploadDir = "uploads/";
+    private final Cloudinary cloudinary;
 
-    public String storeFile(MultipartFile file) {
-        try {
-            Path dirPath = Paths.get(uploadDir);
-            if (!Files.exists(dirPath)) {
-                Files.createDirectories(dirPath);
-            }
+    public FileStorageService(
+            @Value("${cloudinary.cloud-name}") String cloudName,
+            @Value("${cloudinary.api-key}") String apiKey,
+            @Value("${cloudinary.api-secret}") String apiSecret) {
 
-            String originalFilename = file.getOriginalFilename();
-            String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-            String filename = UUID.randomUUID().toString() + extension;
+        cloudinary = new Cloudinary(ObjectUtils.asMap(
+                "cloud_name", cloudName,
+                "api_key", apiKey,
+                "api_secret", apiSecret
+        ));
+    }
 
-            Path filePath = dirPath.resolve(filename);
-            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-
-            return filename;
-
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to store file", e);
-        }
+    public String storeFile(MultipartFile file) throws IOException {
+        Map uploadResult = cloudinary.uploader().upload(
+                file.getBytes(),
+                ObjectUtils.asMap("folder", "twicenice")
+        );
+        return (String) uploadResult.get("secure_url");
     }
 }
