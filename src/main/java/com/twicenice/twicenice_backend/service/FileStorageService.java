@@ -26,11 +26,20 @@ public class FileStorageService {
         ));
     }
 
-    public String storeFile(MultipartFile file) throws IOException {
-        Map uploadResult = cloudinary.uploader().upload(
-                file.getBytes(),
-                ObjectUtils.asMap("folder", "twicenice")
-        );
-        return (String) uploadResult.get("secure_url");
-    }
+   public String storeFile(MultipartFile file) throws IOException {
+    System.out.println("=== CLOUDINARY UPLOAD START ===");
+    System.out.println("Cloud name: " + cloudinary.config.cloudName);
+    
+    Map uploadResult = cloudinary.uploader().upload(
+            file.getBytes(),
+            ObjectUtils.asMap("folder", "twicenice")
+    );
+    
+    String secureUrl = (String) uploadResult.get("secure_url");
+    System.out.println("=== CLOUDINARY RESULT ===");
+    System.out.println("secure_url: " + secureUrl);
+    System.out.println("All keys: " + uploadResult.keySet());
+    
+    return secureUrl;
+}
 }
