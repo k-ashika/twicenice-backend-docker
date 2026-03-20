@@ -20,59 +20,22 @@ public class ProductService {
     @Autowired
     private ProductRepository productRepository;
 
-    private final String BASE_IMAGE_URL = "http://localhost:8080/api/products/images/";
-
     public Product addProduct(Product product) {
-        
-        if (product.getImageUrl() != null) {
-            String[] parts = product.getImageUrl().split("/");
-            product.setImageUrl(parts[parts.length - 1]);
-        }
+        // Cloudinary returns full URL - save as-is
         return productRepository.save(product);
     }
 
-    public String storeImage(MultipartFile file) throws IOException {
-        String uploadDir = "uploads";
-        try {
-            Files.createDirectories(Paths.get(uploadDir));
-
-            String filename = UUID.randomUUID() + "." +
-                    getFileExtension(file.getOriginalFilename());
-            Path destination = Paths.get(uploadDir, filename);
-            Files.copy(file.getInputStream(), destination);
-
-            return filename;
-        } catch (IOException e) {
-            throw new IOException("Failed to store file: " + file.getOriginalFilename(), e);
-        }
-    }
-
-    private String getFileExtension(String filename) {
-        if (filename == null) {
-            return "";
-        }
-        int lastDot = filename.lastIndexOf(".");
-        return lastDot == -1 ? "" : filename.substring(lastDot + 1);
-    }
-
-    
     public List<Product> getAllProducts() {
-        List<Product> products = productRepository.findAll();
-        products.forEach(this::enrichImageUrl);
-        return products;
+        return productRepository.findAll();
     }
 
     public List<Product> getProductsByCategory(String category) {
-        List<Product> products = productRepository.findByCategory(category);
-        products.forEach(this::enrichImageUrl);
-        return products;
+        return productRepository.findByCategory(category);
     }
 
     public Product getProductById(Long id) {
-        Product product = productRepository.findById(id)
+        return productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
-        enrichImageUrl(product);
-        return product;
     }
 
     public void deleteProduct(Long id) {
@@ -88,18 +51,11 @@ public class ProductService {
         existing.setCategory(updatedProduct.getCategory());
         existing.setStock(updatedProduct.getStock());
 
-        if (updatedProduct.getImageUrl() != null) {
-            String[] parts = updatedProduct.getImageUrl().split("/");
-            existing.setImageUrl(parts[parts.length - 1]);
+        // Only update image if new one provided
+        if (updatedProduct.getImageUrl() != null && !updatedProduct.getImageUrl().isBlank()) {
+            existing.setImageUrl(updatedProduct.getImageUrl());
         }
 
         return productRepository.save(existing);
-    }
-
-    
-    private void enrichImageUrl(Product product) {
-        if (product.getImageUrl() != null && !product.getImageUrl().startsWith("http")) {
-            product.setImageUrl(BASE_IMAGE_URL + product.getImageUrl());
-        }
     }
 }
