@@ -26,39 +26,27 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
-                                  HttpServletResponse response,
-                                  FilterChain filterChain) throws IOException, ServletException {
-        System.out.println("=== NEW REQUEST ===");
-        System.out.println("Request to: " + request.getRequestURI());
-        System.out.println("Method: " + request.getMethod());
+                                    HttpServletResponse response,
+                                    FilterChain filterChain) throws IOException, ServletException {
 
         final String authHeader = request.getHeader("Authorization");
-        System.out.println("Auth header: " + (authHeader != null ? "present" : "missing"));
-        
+
+        // No token — pass through to Spring Security
+        // permitAll() routes will work, protected routes will get 403 from Spring Security
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            System.out.println("No valid auth header, passing through");
             filterChain.doFilter(request, response);
             return;
         }
 
         try {
             final String jwt = authHeader.substring(7);
-            System.out.println("JWT token received");
-            
             final String userEmail = jwtService.extractUsername(jwt);
-            final String role = jwtService.extractRole(jwt);
-            System.out.println("Extracted email: " + userEmail);
-            System.out.println("Extracted role: " + role);
 
             if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                System.out.println("Loading user details for: " + userEmail);
                 UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
-                
-                System.out.println("User authorities: " + userDetails.getAuthorities());
-                
+
                 if (jwtService.isTokenValid(jwt, userDetails)) {
-                    System.out.println("Token is valid, creating authentication");
-                    UsernamePasswordAuthenticationToken authToken = 
+                    UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(
                             userDetails,
                             null,
@@ -66,15 +54,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                         );
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
-                    System.out.println("Authentication set in security context");
                 }
             }
         } catch (Exception e) {
-            System.err.println("Authentication error: " + e.getMessage());
-            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Authentication failed: " + e.getMessage());
-            return;
+            // Don't send 403 here! Just clear security context and continue
+            // Spring Security will handle authorization based on route rules
+            System.err.println("JWT processing error: " + e.getMessage());
+            SecurityContextHolder.clearContext();
         }
-        
+
         filterChain.doFilter(request, response);
     }
 }
