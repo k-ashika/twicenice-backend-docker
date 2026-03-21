@@ -75,16 +75,16 @@ public class SecurityConfig {
                 return config;
             }))
             .csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(auth -> auth
+           .authorizeHttpRequests(auth -> auth
+    .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
     .requestMatchers("/api/auth/**").permitAll()
+    .requestMatchers("/api/products/**").permitAll()
     .requestMatchers("/api").permitAll()
     .requestMatchers("/images/**").permitAll()
-    .requestMatchers("/api/products/**").permitAll()
-    .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
     .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
     .requestMatchers("/api/user/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
     .requestMatchers("/api/reviews/admin/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
-    .requestMatchers("/api/reviews/**").hasAuthority("ROLE_USER")
+    .requestMatchers("/api/reviews/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
     .requestMatchers("/api/wishlist/**").authenticated()
     .requestMatchers(HttpMethod.DELETE, "/api/user/orders/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
     .requestMatchers("/api/user/returns/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
@@ -93,6 +93,7 @@ public class SecurityConfig {
     .requestMatchers(HttpMethod.PUT, "/api/admin/returns/**").hasAuthority("ROLE_ADMIN")
     .requestMatchers(HttpMethod.GET, "/api/admin/returns").hasAuthority("ROLE_ADMIN")
     .anyRequest().authenticated()
+
 )
             
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
