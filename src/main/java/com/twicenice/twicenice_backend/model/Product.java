@@ -24,8 +24,8 @@ public class Product {
     private int stock;
     
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnoreProperties("product")
-    private List<Review> reviews = new ArrayList<>();
+@JsonIgnoreProperties("product")
+private List<Review> reviews = new ArrayList<>();
 
     public Long getId() {
         return id;
