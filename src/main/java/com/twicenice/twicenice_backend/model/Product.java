@@ -23,8 +23,8 @@ public class Product {
     private String category;
     private int stock;
     
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-@JsonIgnoreProperties("product")
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+@com.fasterxml.jackson.annotation.JsonIgnore
 private List<Review> reviews = new ArrayList<>();
 
     public Long getId() {
