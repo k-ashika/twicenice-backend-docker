@@ -18,11 +18,10 @@ public class Review {
     private int rating; 
     private String comment;
 
-    @ManyToOne
-    @JoinColumn(name = "product_id")
-    @JsonIgnoreProperties("reviews")
-    private Product product;
-
+    @ManyToOne(fetch = FetchType.LAZY)
+@JoinColumn(name = "product_id")
+@com.fasterxml.jackson.annotation.JsonIgnore
+private Product product;
     private Long userId;
    
     private String userName;
