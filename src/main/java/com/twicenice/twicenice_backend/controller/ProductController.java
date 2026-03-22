@@ -1,18 +1,11 @@
 package com.twicenice.twicenice_backend.controller;
 
-import com.twicenice.twicenice_backend.model.Product;
-import com.twicenice.twicenice_backend.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.*;
-
-import java.net.URI;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/products")
@@ -20,49 +13,19 @@ import java.util.List;
 public class ProductController {
 
     @Autowired
-    private ProductService productService;
+    private JdbcTemplate jdbcTemplate;
 
     @GetMapping
-public ResponseEntity<?> getAllPublicProducts() {
-    try {
-        List<Product> products = productService.getAllProducts();
-        return ResponseEntity.ok(products);
-    } catch (Exception e) {
-        e.printStackTrace();
-        return ResponseEntity.status(500).body("Error: " + e.getMessage() + " | Cause: " + (e.getCause() != null ? e.getCause().getMessage() : "unknown"));
-    }
-}
-
-    @GetMapping("/category/{category}")
-    public List<Product> getPublicProductsByCategory(@PathVariable String category) {
-        return productService.getProductsByCategory(category);
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<Product> getProductById(@PathVariable Long id) {
-        Product product = productService.getProductById(id);
-        return ResponseEntity.ok(product);
-    }
-
-    @GetMapping("/images/{filename:.+}")
-    public ResponseEntity<Resource> serveImage(@PathVariable String filename) {
+    public ResponseEntity<?> getAllPublicProducts() {
         try {
-            
-            String cleanFilename = filename.contains("/") 
-                ? filename.substring(filename.lastIndexOf("/") + 1)
-                : filename;
-                
-            Path file = Paths.get("uploads").resolve(cleanFilename);
-            Resource resource = new UrlResource(file.toUri());
-            
-            if (resource.exists() && resource.isReadable()) {
-                return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
-                    .body(resource);
-            }
-            return ResponseEntity.notFound().build();
+            List<Map<String, Object>> products = jdbcTemplate.queryForList(
+                "SELECT id, name, description, price, image_url, category, stock FROM product"
+            );
+            return ResponseEntity.ok(products);
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
+            return ResponseEntity.status(500).body(
+                "DB Error: " + e.getClass().getName() + " - " + e.getMessage()
+            );
         }
     }
 }
