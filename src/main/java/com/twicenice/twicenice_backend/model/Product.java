@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-
+import com.fasterxml.jackson.annotation.JsonProperty;
 @Entity
 public class Product {
 
@@ -18,9 +18,9 @@ public class Product {
     @Column(nullable = false)
     private double price;
 
-    @Column(nullable = false)
-    private String imageUrl;
-
+    @Column(name = "image_url", nullable = false)
+@JsonProperty("imageUrl")
+private String imageUrl;
     private String category;
     private int stock;
 
