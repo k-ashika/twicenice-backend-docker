@@ -1,8 +1,10 @@
 package com.twicenice.twicenice_backend.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import com.twicenice.twicenice_backend.model.Product;
 import com.twicenice.twicenice_backend.repository.ProductRepository;
 
@@ -16,30 +18,17 @@ public class ProductService {
         return productRepository.save(product);
     }
 
+    @Transactional(readOnly = true)
     public List<Product> getAllProducts() {
-    try {
-        System.out.println("=== FETCHING ALL PRODUCTS ===");
-        List<Product> products = productRepository.findAll();
-        System.out.println("=== FOUND " + products.size() + " PRODUCTS ===");
-        for (Product p : products) {
-            System.out.println("Product: " + p.getId() + " | " + p.getName() + " | " + p.getImageUrl());
-        }
-        return products;
-    } catch (Exception e) {
-        System.err.println("=== ERROR IN getAllProducts ===");
-        System.err.println("Error type: " + e.getClass().getName());
-        System.err.println("Error message: " + e.getMessage());
-        if (e.getCause() != null) {
-            System.err.println("Caused by: " + e.getCause().getClass().getName());
-            System.err.println("Cause message: " + e.getCause().getMessage());
-        }
-        throw e;
+        return productRepository.findAll();
     }
-}
+
+    @Transactional(readOnly = true)
     public List<Product> getProductsByCategory(String category) {
         return productRepository.findByCategory(category);
     }
 
+    @Transactional(readOnly = true)
     public Product getProductById(Long id) {
         return productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
