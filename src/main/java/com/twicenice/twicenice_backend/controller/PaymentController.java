@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/payment")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = {"http://localhost:4200", "https://twicenice.netlify.app"})
 public class PaymentController {
 
     @Value("${razorpay.key_id}")
