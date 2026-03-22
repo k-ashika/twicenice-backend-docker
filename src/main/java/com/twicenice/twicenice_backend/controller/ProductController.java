@@ -23,9 +23,15 @@ public class ProductController {
     private ProductService productService;
 
     @GetMapping
-    public List<Product> getAllPublicProducts() {
-        return productService.getAllProducts();
+public ResponseEntity<?> getAllPublicProducts() {
+    try {
+        List<Product> products = productService.getAllProducts();
+        return ResponseEntity.ok(products);
+    } catch (Exception e) {
+        e.printStackTrace();
+        return ResponseEntity.status(500).body("Error: " + e.getMessage() + " | Cause: " + (e.getCause() != null ? e.getCause().getMessage() : "unknown"));
     }
+}
 
     @GetMapping("/category/{category}")
     public List<Product> getPublicProductsByCategory(@PathVariable String category) {
