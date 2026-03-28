@@ -13,10 +13,10 @@ public class Review {
     private int rating;
     private String comment;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id")
-    @JsonIgnore
-    private Product product;
+   @ManyToOne(fetch = FetchType.EAGER)
+@JoinColumn(name = "product_id")
+// Remove @JsonIgnore
+private Product product;
 
     private Long userId;
     private String userName;
