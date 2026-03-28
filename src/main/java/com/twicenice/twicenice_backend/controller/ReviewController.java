@@ -57,12 +57,26 @@ public class ReviewController {
         return ResponseEntity.ok(reviews);
     }
 
-    @GetMapping("/admin/all")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<Review>> getAllReviews() {
-        List<Review> reviews = reviewService.getAllReviews();
-        return ResponseEntity.ok(reviews);
-    }
+   @GetMapping("/admin/all")
+@PreAuthorize("hasRole('ADMIN')")
+public ResponseEntity<List<ReviewResponseDTO>> getAllReviews() {
+    List<Review> reviews = reviewService.getAllReviews();
+    List<ReviewResponseDTO> response = reviews.stream().map(review -> {
+        ReviewResponseDTO dto = new ReviewResponseDTO();
+        dto.setId(review.getId());
+        dto.setRating(review.getRating());
+        dto.setComment(review.getComment());
+        dto.setUserName(review.getUserName());
+        dto.setVerifiedPurchase(true);
+        if (review.getProduct() != null) {
+            dto.setProductId(review.getProduct().getId());
+            dto.setProductImageUrl(review.getProduct().getImageUrl());
+            dto.setProductName(review.getProduct().getName());
+        }
+        return dto;
+    }).collect(java.util.stream.Collectors.toList());
+    return ResponseEntity.ok(response);
+}
 
  
     @DeleteMapping("/admin/delete/{reviewId}")
