@@ -11,6 +11,16 @@ public class ReviewResponseDTO {
     private String comment;
     private String userName;
     private boolean verifiedPurchase;
+	private Long productId;
+    private String productImageUrl;
+    private String productName;
+public Long getProductId() { return productId; }
+    public void setProductId(Long productId) { this.productId = productId; }
+    public String getProductImageUrl() { return productImageUrl; }
+    public void setProductImageUrl(String productImageUrl) { this.productImageUrl = productImageUrl; }
+    public String getProductName() { return productName; }
+    public void setProductName(String productName) { this.productName = productName; }
+
 	public Long getId() {
 		return id;
 	}
